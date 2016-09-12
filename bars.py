@@ -4,7 +4,8 @@ from math import sin, cos, asin, sqrt, radians
 
 
 def load_data(filepath):
-    return open(filepath, 'r')
+    with open(filepath, 'r') as file:
+        return json.loads(file.read())
 
 
 def get_biggest_bar(data):
@@ -40,10 +41,9 @@ def get_closest_bar(data, longitude, latitude):
 
 
 if __name__ == '__main__':
-    with load_data('/home/lamberk/python/devman/3_bars/data.json') as file:
-        bars = json.loads(file.read())
-        print(get_biggest_bar(bars))
-        print(get_smallest_bar(bars))
-        longitude = float(input('Type longtitude: '))
-        latitude = float(input('Type latitude: '))
-        print(get_closest_bar(bars, longitude, latitude))
+    bars = load_data('/home/lamberk/python/devman/3_bars/data.json')
+    print(get_biggest_bar(bars))
+    print(get_smallest_bar(bars))
+    longitude = float(input('Type longtitude: '))
+    latitude = float(input('Type latitude: '))
+    print(get_closest_bar(bars, longitude, latitude))
