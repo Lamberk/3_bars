@@ -1,11 +1,12 @@
 import json
 import requests
+import argparse
 from math import sin, cos, asin, sqrt, radians
 
 
 def load_data(filepath):
-    with open(filepath, 'r') as file:
-        return json.loads(file.read())
+    with open(filepath, 'r') as json_file:
+        return json.load(json_file)
 
 
 def get_biggest_bar(data):
@@ -28,11 +29,15 @@ def haversine(lon1, lat1, lon2, lat2):
 
 
 def get_closest_bar(data, longitude, latitude):
-    min_length = 2**32
-    bar = 0
-    for item in data:
-        bar_longtitude = item['Cells']['geoData']['coordinates'][0]
-        bar_latitude = item['Cells']['geoData']['coordinates'][1]
+    random_bar = data[0]
+    min_length = haversine(
+        longitude,
+        latitude,
+        random_bar['Cells']['geoData']['coordinates'][0],
+        random_bar['Cells']['geoData']['coordinates'][1],
+    )
+    for item in data[1:]:
+        bar_longtitude, bar_latitude = item['Cells']['geoData']['coordinates']
         length = haversine(longitude, latitude, bar_longtitude, bar_latitude)
         if length < min_length:
             min_length = length
@@ -41,9 +46,16 @@ def get_closest_bar(data, longitude, latitude):
 
 
 if __name__ == '__main__':
-    bars = load_data('/home/lamberk/python/devman/3_bars/data.json')
-    print(get_biggest_bar(bars))
-    print(get_smallest_bar(bars))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--path', help='Path to file', required=True)
+    args = parser.parse_args()
+
+    bars = load_data(args.path)
+    print('Самый большой бар: ', get_biggest_bar(bars)['Cells']['Name'])
+    print('Самый маленький бар: ', get_smallest_bar(bars)['Cells']['Name'])
     longitude = float(input('Type longtitude: '))
     latitude = float(input('Type latitude: '))
-    print(get_closest_bar(bars, longitude, latitude))
+    print(
+        'Ближайший бар: ',
+        get_closest_bar(bars, longitude, latitude)['Cells']['Name'],
+    )
